@@ -1,5 +1,6 @@
 package com.bankapp.bankappapi.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bankapp.bankappapi.model.Transaction;
 import com.bankapp.bankappapi.model.User;
 import com.bankapp.bankappapi.repository.UserRepository;
 
@@ -21,7 +23,7 @@ public class Controller {
 	public User registerdetails(@PathVariable("name") String name, @PathVariable("age") int age,
 			@PathVariable("mobileNumber") String mobileNumber, @PathVariable("gender") String gender,
 			@PathVariable("amount") int amount, @PathVariable("password") String password) {
-		//System.out.println("Register entered");
+		// System.out.println("Register entered");
 
 		User user = new User();
 		user.setName(name);
@@ -92,5 +94,142 @@ public class Controller {
 		User userObj = userRepository.findByMobileNumberAndPassword(MobileNumber, Password);
 		return userObj;
 	}
+
+	@GetMapping("user/withdraw/{amount}/{mobilenumber}")
+	public String withdraw(@PathVariable("amount") int amount, @PathVariable("mobilenumber") String MobileNumber) {
+		// User userobj =
+		LocalDateTime timestamp = LocalDateTime.now();
+		String time = timestamp.toString();
+		User user = userRepository.findByMobileNumber(MobileNumber);
+		int userAmount = user.getAmount();
+		System.out.println(userAmount);
+		int accountNumber = user.getAccountNumber();
+		int totalamount = userAmount - amount;
+
+		Transaction transaction = new Transaction();
+		transaction.setMobileNumber(MobileNumber);
+		transaction.setUserAccountNumber(accountNumber);
+		transaction.setAmount(amount);
+		transaction.setType("Debited");
+		transaction.setCurrentbalance(totalamount);
+		transaction.setDatetime(time);
+
+		if (amount > userAmount) {
+			return "insufficint account balance";
+		} else {
+			userRepository.changeAmount(totalamount, MobileNumber);
+			Transaction userObj = userRepository.save(transaction);
+			int currentbalance = userObj.getCurrentbalance();
+			// serRepository.transaction(MobileNumber,accountNumber,amount,type,totalamount,time);
+			return "withdraw successfully! Your Current balance = " + currentbalance + "";
+		}
+	}
+
+	@GetMapping("user/deposit/{amount}/{mobilenumber}")
+	public String deposit(@PathVariable("amount") int amount, @PathVariable("mobilenumber") String MobileNumber) {
+		// User userobj =
+		LocalDateTime timestamp = LocalDateTime.now();
+		String time = timestamp.toString();
+		User user = userRepository.findByMobileNumber(MobileNumber);
+		int userAmount = user.getAmount();
+		System.out.println(userAmount);
+		int accountNumber = user.getAccountNumber();
+		int totalamount = userAmount + amount;
+
+		Transaction transaction = new Transaction();
+		transaction.setMobileNumber(MobileNumber);
+		transaction.setUserAccountNumber(accountNumber);
+		transaction.setAmount(amount);
+		transaction.setType("Credited");
+		transaction.setCurrentbalance(totalamount);
+		transaction.setDatetime(time);
+
+		if (amount > userAmount) {
+			return "insufficint account balance";
+		} else {
+			userRepository.changeAmount(totalamount, MobileNumber);
+			Transaction userObj = userRepository.save(transaction);
+			int currentbalance = userObj.getCurrentbalance();
+			// serRepository.transaction(MobileNumber,accountNumber,amount,type,totalamount,time);
+			return "Deposit successfully! Your Current balance = " + currentbalance + "";
+		}
+	}
+
+	@GetMapping("user/amounttransfer/{accountnumber}/{amount}/{mobilenumber}")
+	public String amountTransfer(@PathVariable("accountnumber") int accountnumber, @PathVariable("amount") int amount,
+			@PathVariable("mobilenumber") String MobileNumber) {
+		LocalDateTime timestamp = LocalDateTime.now();
+		String time = timestamp.toString();
+
+		// Object to get sender amount to update in sender account
+		User user = userRepository.findByMobileNumber(MobileNumber);
+		int userAmount = user.getAmount();
+		int accountNumber = user.getAccountNumber();
+		int totalamount = userAmount - amount;
+
+		// get receiver amount to update in database
+		User user2 = userRepository.findByAccountNumber(accountnumber);
+		String mobile = user2.getMobileNumber();
+		int receiveramount = user2.getAmount();
+		int totalamounttoreceiver = amount + receiveramount;
+
+		if (amount > userAmount) {
+			return "insufficint account balance";
+		} else {
+			// update amount in sender account
+			userRepository.changeAmount(totalamount, MobileNumber);
+			// update amount in receiver account
+			userRepository.changeAmount(totalamounttoreceiver, mobile);
+
+			// note transacton for sender
+			Transaction transaction = new Transaction();
+			transaction.setMobileNumber(MobileNumber);
+			transaction.setUserAccountNumber(accountNumber);
+			transaction.setAmount(amount);
+			transaction.setType("Transfered");
+			transaction.setCurrentbalance(totalamount);
+			transaction.setDatetime(time);
+			transaction.setAccountNumber(accountnumber);
+			Transaction userObj = userRepository.save(transaction);
+			// note transacton for receiver
+			reciverTransaction(accountnumber, amount, accountNumber, time);
+			int currentbalance = userObj.getCurrentbalance();
+			return "Transfered successfully! Your Current balance = " + currentbalance + "";
+
+		}
+
+	}
+
+	public void reciverTransaction(int accountNumber, int amount2, int accountNumber2, String time) {
+
+		User user = userRepository.findByAccountNumber(accountNumber);
+		String mobileNumber = user.getMobileNumber();
+		int amount = user.getAmount();
+		// note transaction for receiver
+		Transaction transaction = new Transaction();
+		transaction.setMobileNumber(mobileNumber);
+		transaction.setUserAccountNumber(accountNumber);
+		transaction.setAmount(amount2);
+		transaction.setType("Received");
+		transaction.setAccountNumber(accountNumber2);
+		transaction.setCurrentbalance(amount + amount2);
+		transaction.setDatetime(time);
+		userRepository.save(transaction);
+
+	}
+	
+	
+	
+	
+	@GetMapping("user/transaction/{mobileNumber}")
+	public List<Transaction> transactionDetails(@PathVariable("mobileNumber") String mobileNumber) {
+		 
+		List<Transaction> userObj = userRepository.findbymobileNumber(mobileNumber);
+		System.out.println(userObj);
+		return userObj;
+		
+	}
+	
+	
 
 }
