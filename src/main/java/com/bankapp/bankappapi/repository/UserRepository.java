@@ -40,6 +40,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
 	@Modifying
 	@Query("select u from com.bankapp.bankappapi.model.Transaction u where u.mobileNumber=:mobilenumber")
-	List<Transaction> findbymobileNumber(@Param("mobilenumber") String mobilenumber);
+	List<Transaction> findbymobileNo(@Param("mobilenumber") String mobilenumber);
 
 }
