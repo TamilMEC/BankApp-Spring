@@ -17,12 +17,12 @@ import lombok.ToString;
 @AllArgsConstructor
 @Entity(name = "transaction")
 public class Transaction {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name="id")
+	@Column(name = "id")
 	private int id;
-	
+
 	@Column(name = "mobilenumber")
 	private String mobileNumber;
 

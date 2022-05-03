@@ -81,7 +81,7 @@ public class Controller {
 		user.setPassword(Password);
 		String type = "Admin";
 		User userObj3 = userRepository.findByMobileNumber(MobileNumber);
-		if(userObj3==null) {
+		if (userObj3 == null) {
 			return "No Admin account found";
 		}
 		User userObj = userRepository.findByMobileNumberAndPassword(MobileNumber, Password);
