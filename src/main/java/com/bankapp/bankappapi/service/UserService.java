@@ -1,29 +1,28 @@
-package com.bankapp.bankappapi.controller;
+package com.bankapp.bankappapi.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Component;
 
 import com.bankapp.bankappapi.model.Transaction;
 import com.bankapp.bankappapi.model.User;
 import com.bankapp.bankappapi.repository.UserRepository;
 
-@RestController
-public class Controller {
+@Component
+public class UserService {
 
 	@Autowired
 	UserRepository userRepository;
 
-	@GetMapping("user/register/{name}/{age}/{mobileNumber}/{gender}/{amount}/{password}")
-	public User registerdetails(@PathVariable("name") String name, @PathVariable("age") int age,
-			@PathVariable("mobileNumber") String mobileNumber, @PathVariable("gender") String gender,
-			@PathVariable("amount") int amount, @PathVariable("password") String password) {
+	@Autowired
+	User user;
+
+	@Autowired
+	Transaction transaction;
+
+	public User register(String name, int age, String mobileNumber, String gender, int amount, String password) {
 		User user = new User();
 		user.setName(name);
 		user.setAge(age);
@@ -38,9 +37,7 @@ public class Controller {
 
 	}
 
-	@PutMapping("user/login/{mobile_number}/{Password}")
-	public String login(@PathVariable("mobile_number") String MobileNumber, @PathVariable("Password") String Password) {
-		User user = new User();
+	public String login(String MobileNumber, String Password) {
 		user.setMobileNumber(MobileNumber);
 		user.setPassword(Password);
 		String status = "Active";
@@ -62,83 +59,51 @@ public class Controller {
 							status);
 					if (userObj2 == null) {
 						return "Your Account is not activated kindly wait for 2 working days to activate your account";
+					} else {
+						return "success";
 					}
-					return "success";
 				}
 			}
 		}
 	}
 
-	@GetMapping("admin/login/{mobile_number}/{Password}")
-	public String adminLogin(@PathVariable("mobile_number") String MobileNumber,
-			@PathVariable("Password") String Password) {
-		User user = new User();
-		user.setMobileNumber(MobileNumber);
-		user.setPassword(Password);
-		String type = "Admin";
-		User userObj3 = userRepository.findByMobileNumber(MobileNumber);
-		if (userObj3 == null) {
-			return "No Admin account found";
-		}
-		User userObj = userRepository.findByMobileNumberAndPassword(MobileNumber, Password);
-		if (userObj == null) {
-			return "Invalid Mobile Numer or Passsword";
-		} else {
-			User userObj2 = userRepository.findByMobileNumberAndPasswordAndUser(MobileNumber, Password, type);
-			if (userObj2 == null) {
-				return "You are not a admin.If you are user try to login in user Login";
-			}
-			return "success";
-		}
-	}
-
-	@GetMapping("admin/list")
-	public List<User> getAllUsers() {
-		String type = "user";
-		List<User> userList = userRepository.findByuser(type);
-		return userList;
-	}
-
-	@GetMapping("user/accountdetails/{mobile_number}/{Password}")
-	public User accountDetails(@PathVariable("mobile_number") String MobileNumber,
-			@PathVariable("Password") String Password) {
-		User user = new User();
+	public User accountDetails(String MobileNumber, String Password) {
 		user.setMobileNumber(MobileNumber);
 		user.setPassword(Password);
 		User userObj = userRepository.findByMobileNumberAndPassword(MobileNumber, Password);
 		return userObj;
 	}
 
-	@GetMapping("user/withdraw/{amount}/{mobilenumber}")
-	public String withdraw(@PathVariable("amount") int amount, @PathVariable("mobilenumber") String MobileNumber) {
-		// User userobj =
+	public String withdraw(int amount, String MobileNumber) {
 		LocalDateTime timestamp = LocalDateTime.now();
 		String time = timestamp.toString();
 		User user = userRepository.findByMobileNumber(MobileNumber);
-		int userAmount = user.getAmount();
-		int accountNumber = user.getAccountNumber();
-		int totalamount = userAmount - amount;
-
-		Transaction transaction = new Transaction();
-		transaction.setMobileNumber(MobileNumber);
-		transaction.setUserAccountNumber(accountNumber);
-		transaction.setAmount(amount);
-		transaction.setType("Debited");
-		transaction.setCurrentbalance(totalamount);
-		transaction.setDatetime(time);
-
-		if (amount > userAmount) {
-			return "insufficint account balance";
+		if (user == null) {
+			return "no user account found";
 		} else {
-			userRepository.changeAmount(totalamount, MobileNumber);
-			Transaction userObj = userRepository.save(transaction);
-			int currentbalance = userObj.getCurrentbalance();
-			return "withdraw successfully! Your Current balance = " + currentbalance + "";
+			int userAmount = user.getAmount();
+			int accountNumber = user.getAccountNumber();
+			int totalamount = userAmount - amount;
+
+			transaction.setMobileNumber(MobileNumber);
+			transaction.setUserAccountNumber(accountNumber);
+			transaction.setAmount(amount);
+			transaction.setType("Debited");
+			transaction.setCurrentbalance(totalamount);
+			transaction.setDatetime(time);
+
+			if (amount > userAmount) {
+				return "insufficint account balance";
+			} else {
+				userRepository.changeAmount(totalamount, MobileNumber);
+				Transaction userObj = userRepository.save(transaction);
+				int currentbalance = userObj.getCurrentbalance();
+				return "withdraw successfully! Your Current balance = " + currentbalance + "";
+			}
 		}
 	}
 
-	@GetMapping("user/deposit/{amount}/{mobilenumber}")
-	public String deposit(@PathVariable("amount") int amount, @PathVariable("mobilenumber") String MobileNumber) {
+	public String deposit(int amount, String MobileNumber) {
 		LocalDateTime timestamp = LocalDateTime.now();
 		String time = timestamp.toString();
 		User user = userRepository.findByMobileNumber(MobileNumber);
@@ -146,7 +111,6 @@ public class Controller {
 		int accountNumber = user.getAccountNumber();
 		int totalamount = userAmount + amount;
 
-		Transaction transaction = new Transaction();
 		transaction.setMobileNumber(MobileNumber);
 		transaction.setUserAccountNumber(accountNumber);
 		transaction.setAmount(amount);
@@ -154,19 +118,13 @@ public class Controller {
 		transaction.setCurrentbalance(totalamount);
 		transaction.setDatetime(time);
 
-		if (amount > userAmount) {
-			return "insufficint account balance";
-		} else {
-			userRepository.changeAmount(totalamount, MobileNumber);
-			Transaction userObj = userRepository.save(transaction);
-			int currentbalance = userObj.getCurrentbalance();
-			return "Deposit successfully! Your Current balance = " + currentbalance + "";
-		}
+		userRepository.changeAmount(totalamount, MobileNumber);
+		Transaction userObj = userRepository.save(transaction);
+		int currentbalance = userObj.getCurrentbalance();
+		return "Deposit successfully! Your Current balance = " + currentbalance + "";
 	}
 
-	@GetMapping("user/amounttransfer/{accountnumber}/{amount}/{mobilenumber}")
-	public String amountTransfer(@PathVariable("accountnumber") int accountnumber, @PathVariable("amount") int amount,
-			@PathVariable("mobilenumber") String MobileNumber) {
+	public String amountTransfer(int accountnumber, int amount, String MobileNumber) {
 		LocalDateTime timestamp = LocalDateTime.now();
 		String time = timestamp.toString();
 		User row = userRepository.findByAccountNumber(accountnumber);
@@ -194,7 +152,6 @@ public class Controller {
 				userRepository.changeAmount(totalamounttoreceiver, mobile);
 
 				// note transacton for sender
-				Transaction transaction = new Transaction();
 				transaction.setMobileNumber(MobileNumber);
 				transaction.setUserAccountNumber(accountNumber);
 				transaction.setAmount(amount);
@@ -218,7 +175,6 @@ public class Controller {
 		String mobileNumber = user.getMobileNumber();
 		int amount = user.getAmount();
 		// note transaction for receiver
-		Transaction transaction = new Transaction();
 		transaction.setMobileNumber(mobileNumber);
 		transaction.setUserAccountNumber(accountNumber);
 		transaction.setAmount(amount2);
@@ -230,34 +186,10 @@ public class Controller {
 
 	}
 
-	@GetMapping("user/transaction/{mobileNumber}")
-	public List<Transaction> transactionDetails(@PathVariable("mobileNumber") String mobileNumber) {
-
+	public List<Transaction> transactionDetails(String mobileNumber) {
 		List<Transaction> userObj = userRepository.findbymobileNumber(mobileNumber);
 		return userObj;
 
-	}
-
-	@GetMapping("admin/activateuser/{mobileNumber}")
-	public String activateUser(@PathVariable("mobileNumber") String mobileNumber) {
-		String status = "Activate";
-		int row = userRepository.changeStatus(mobileNumber, status);
-		if (row == 1) {
-			return "Successfully Activated User Account";
-		} else {
-			return "No user found";
-		}
-
-	}
-
-	@DeleteMapping("account/delete/{moileNumber}")
-	public String deleteUserAccount(@PathVariable("moileNumber") String mobileNumber) {
-		int row = userRepository.deleteByMobileNumber(mobileNumber);
-		if (row == 1) {
-			return "User Account successfully deleted";
-		} else {
-			return "Unable to delete user account";
-		}
 	}
 
 }

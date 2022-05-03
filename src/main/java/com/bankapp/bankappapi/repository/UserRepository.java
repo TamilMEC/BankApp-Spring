@@ -8,11 +8,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import com.bankapp.bankappapi.model.Transaction;
 import com.bankapp.bankappapi.model.User;
 
+@Component
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
 
@@ -24,8 +26,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 	User findByMobileNumberAndPasswordAndUser(String MobileNumber, String Password, String type);
 
 	User findByMobileNumberAndPassword(String MobileNumber, String Password);
-
-	List<User> findByuser(String user);
 
 	@Transactional
 	@Modifying
@@ -41,15 +41,5 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 	@Modifying
 	@Query("select u from com.bankapp.bankappapi.model.Transaction u where u.mobileNumber=:mobilenumber")
 	List<Transaction> findbymobileNumber(@Param("mobilenumber") String mobilenumber);
-
-	@Transactional
-	@Modifying
-	@Query("update banking u set u.status=:status where u.mobileNumber=:mobileNumber")
-	int changeStatus(@Param("mobileNumber") String mobilenumber, @Param("status") String status);
-
-	@Transactional
-	@Modifying
-	@Query("delete from com.bankapp.bankappapi.model.User u where u.mobileNumber=:mobileNumber")
-	int deleteByMobileNumber(@Param("mobileNumber") String mobileNumber);
 
 }
