@@ -18,10 +18,11 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
 	@SuppressWarnings("unchecked")
 	User save(User user);
-	//Transaction save(Transaction transaction);
+
+	// Transaction save(Transaction transaction);
 	User findByMobileNumberAndPasswordAndStatus(String MobileNumber, String Password, String status);
 
-	User findByMobileNumberAndPasswordAndUser(String MobileNumber, String Password, String status);
+	User findByMobileNumberAndPasswordAndUser(String MobileNumber, String Password, String type);
 
 	User findByMobileNumberAndPassword(String MobileNumber, String Password);
 
@@ -30,17 +31,27 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 	@Transactional
 	@Modifying
 	@Query("update banking u set u.amount = :amount where u.mobileNumber=:MobileNumber")
-	void changeAmount(@Param("amount") int amount, @Param("MobileNumber") String MobileNumber); 
+	void changeAmount(@Param("amount") int amount, @Param("MobileNumber") String MobileNumber);
 
 	User findByMobileNumber(String mobileNumber);
-	
+
 	User findByAccountNumber(int accountNumber);
 
 	Transaction save(Transaction transaction);
-	
-	
+
 	@Modifying
 	@Query("select u from com.bankapp.bankappapi.model.Transaction u where u.mobileNumber=:mobilenumber")
-	List<Transaction> findbymobileNumber(@Param("mobilenumber")String mobilenumber);
-	//Transaction findbymobileNumber(String mobileNumber);
+	List<Transaction> findbymobileNumber(@Param("mobilenumber") String mobilenumber);
+	// Transaction findbymobileNumber(String mobileNumber);
+
+	@Transactional
+	@Modifying
+	@Query("update banking u set u.status=:status where u.mobileNumber=:mobileNumber")
+	int changeStatus(@Param("mobileNumber") String mobilenumber, @Param("status") String status);
+
+	@Transactional
+	@Modifying
+	@Query("delete from com.bankapp.bankappapi.model.User u where u.mobileNumber=:mobileNumber")
+	int deleteByMobileNumber(@Param("mobileNumber") String mobileNumber);
+
 }

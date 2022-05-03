@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -19,6 +20,8 @@ public class Controller {
 	@Autowired
 	UserRepository userRepository;
 
+	// @Before(value = "execution(* com.bankapp.bankappapi.model.SetterForUser*(..))
+	// and args(name,age,mobileNumber,gender,amount,password)")
 	@GetMapping("user/register/{name}/{age}/{mobileNumber}/{gender}/{amount}/{password}")
 	public User registerdetails(@PathVariable("name") String name, @PathVariable("age") int age,
 			@PathVariable("mobileNumber") String mobileNumber, @PathVariable("gender") String gender,
@@ -45,30 +48,45 @@ public class Controller {
 		user.setMobileNumber(MobileNumber);
 		user.setPassword(Password);
 		String status = "Active";
+		String type = "user";
 
 		User userObj = userRepository.findByMobileNumberAndPassword(MobileNumber, Password);
-		if (userObj == null) {
-			return "no users found";
+		User userObj3 = userRepository.findByMobileNumber(MobileNumber);
+		if (userObj3 == null) {
+			return "No user found.If you are new user register then login";
 		} else {
-			User userObj2 = userRepository.findByMobileNumberAndPasswordAndStatus(MobileNumber, Password, status);
-			if (userObj2 == null) {
-				return "Your Account is not activated kindly wait for 2 working days to activate your account";
+			User userObj4 = userRepository.findByMobileNumberAndPasswordAndUser(MobileNumber, Password, type);
+			if (userObj4 == null) {
+				return "You are not an user.If you are admin try to login in admin login";
+			} else {
+				if (userObj == null) {
+					return "Please enter valid Mobile number or password";
+				} else {
+					User userObj2 = userRepository.findByMobileNumberAndPasswordAndStatus(MobileNumber, Password,
+							status);
+					if (userObj2 == null) {
+						return "Your Account is not activated kindly wait for 2 working days to activate your account";
+					}
+					return "success";
+				}
 			}
-			return "success";
 		}
 	}
 
-	@PutMapping("admin/login/{mobile_number}/{Password}")
+	@GetMapping("admin/login/{mobile_number}/{Password}")
 	public String adminLogin(@PathVariable("mobile_number") String MobileNumber,
 			@PathVariable("Password") String Password) {
 		User user = new User();
 		user.setMobileNumber(MobileNumber);
 		user.setPassword(Password);
 		String type = "Admin";
-
+		User userObj3 = userRepository.findByMobileNumber(MobileNumber);
+		if(userObj3==null) {
+			return "No Admin account found";
+		}
 		User userObj = userRepository.findByMobileNumberAndPassword(MobileNumber, Password);
 		if (userObj == null) {
-			return "no users found";
+			return "Invalid Mobile Numer or Passsword";
 		} else {
 			User userObj2 = userRepository.findByMobileNumberAndPasswordAndUser(MobileNumber, Password, type);
 			if (userObj2 == null) {
@@ -85,7 +103,7 @@ public class Controller {
 		return userList;
 	}
 
-	@PutMapping("user/accountdetails/{mobile_number}/{Password}")
+	@GetMapping("user/accountdetails/{mobile_number}/{Password}")
 	public User accountDetails(@PathVariable("mobile_number") String MobileNumber,
 			@PathVariable("Password") String Password) {
 		User user = new User();
@@ -160,42 +178,45 @@ public class Controller {
 			@PathVariable("mobilenumber") String MobileNumber) {
 		LocalDateTime timestamp = LocalDateTime.now();
 		String time = timestamp.toString();
-
-		// Object to get sender amount to update in sender account
-		User user = userRepository.findByMobileNumber(MobileNumber);
-		int userAmount = user.getAmount();
-		int accountNumber = user.getAccountNumber();
-		int totalamount = userAmount - amount;
-
-		// get receiver amount to update in database
-		User user2 = userRepository.findByAccountNumber(accountnumber);
-		String mobile = user2.getMobileNumber();
-		int receiveramount = user2.getAmount();
-		int totalamounttoreceiver = amount + receiveramount;
-
-		if (amount > userAmount) {
-			return "insufficint account balance";
+		User row = userRepository.findByAccountNumber(accountnumber);
+		if (row == null) {
+			return "no user found in this account number";
 		} else {
-			// update amount in sender account
-			userRepository.changeAmount(totalamount, MobileNumber);
-			// update amount in receiver account
-			userRepository.changeAmount(totalamounttoreceiver, mobile);
+			// Object to get sender amount to update in sender account
+			User user = userRepository.findByMobileNumber(MobileNumber);
+			int userAmount = user.getAmount();
+			int accountNumber = user.getAccountNumber();
+			int totalamount = userAmount - amount;
 
-			// note transacton for sender
-			Transaction transaction = new Transaction();
-			transaction.setMobileNumber(MobileNumber);
-			transaction.setUserAccountNumber(accountNumber);
-			transaction.setAmount(amount);
-			transaction.setType("Transfered");
-			transaction.setCurrentbalance(totalamount);
-			transaction.setDatetime(time);
-			transaction.setAccountNumber(accountnumber);
-			Transaction userObj = userRepository.save(transaction);
-			// note transacton for receiver
-			reciverTransaction(accountnumber, amount, accountNumber, time);
-			int currentbalance = userObj.getCurrentbalance();
-			return "Transfered successfully! Your Current balance = " + currentbalance + "";
+			// get receiver amount to update in database
+			User user2 = userRepository.findByAccountNumber(accountnumber);
+			String mobile = user2.getMobileNumber();
+			int receiveramount = user2.getAmount();
+			int totalamounttoreceiver = amount + receiveramount;
 
+			if (amount > userAmount) {
+				return "insufficint account balance";
+			} else {
+				// update amount in sender account
+				userRepository.changeAmount(totalamount, MobileNumber);
+				// update amount in receiver account
+				userRepository.changeAmount(totalamounttoreceiver, mobile);
+
+				// note transacton for sender
+				Transaction transaction = new Transaction();
+				transaction.setMobileNumber(MobileNumber);
+				transaction.setUserAccountNumber(accountNumber);
+				transaction.setAmount(amount);
+				transaction.setType("Transfered");
+				transaction.setCurrentbalance(totalamount);
+				transaction.setDatetime(time);
+				transaction.setAccountNumber(accountnumber);
+				Transaction userObj = userRepository.save(transaction);
+				// note transacton for receiver
+				reciverTransaction(accountnumber, amount, accountNumber, time);
+				int currentbalance = userObj.getCurrentbalance();
+				return "Transfered successfully! Your Current balance = " + currentbalance + "";
+			}
 		}
 
 	}
@@ -217,19 +238,36 @@ public class Controller {
 		userRepository.save(transaction);
 
 	}
-	
-	
-	
-	
+
 	@GetMapping("user/transaction/{mobileNumber}")
 	public List<Transaction> transactionDetails(@PathVariable("mobileNumber") String mobileNumber) {
-		 
+
 		List<Transaction> userObj = userRepository.findbymobileNumber(mobileNumber);
 		System.out.println(userObj);
 		return userObj;
-		
+
 	}
-	
-	
+
+	@GetMapping("admin/activateuser/{mobileNumber}")
+	public String activateUser(@PathVariable("mobileNumber") String mobileNumber) {
+		String status = "Activate";
+		int row = userRepository.changeStatus(mobileNumber, status);
+		if (row == 1) {
+			return "Successfully Activated User Account";
+		} else {
+			return "No user found";
+		}
+
+	}
+
+	@DeleteMapping("account/delete/{moileNumber}")
+	public String deleteUserAccount(@PathVariable("moileNumber") String mobileNumber) {
+		int row = userRepository.deleteByMobileNumber(mobileNumber);
+		if (row == 1) {
+			return "User Account successfully deleted";
+		} else {
+			return "Unable to delete user account";
+		}
+	}
 
 }
