@@ -3,7 +3,7 @@ package com.bankapp.bankappapi.Validations;
 public class Validation {
 
 	public static void nameValidation(String name) {
-		if (name == null || name.trim() == "") {
+		if (name == null || name.trim().equals(" ")) {
 			throw new Error("Name cannot be empty");
 		}
 	}
