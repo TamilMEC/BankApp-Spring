@@ -20,14 +20,10 @@ public class Controller {
 	@Autowired
 	UserRepository userRepository;
 
-	// @Before(value = "execution(* com.bankapp.bankappapi.model.SetterForUser*(..))
-	// and args(name,age,mobileNumber,gender,amount,password)")
 	@GetMapping("user/register/{name}/{age}/{mobileNumber}/{gender}/{amount}/{password}")
 	public User registerdetails(@PathVariable("name") String name, @PathVariable("age") int age,
 			@PathVariable("mobileNumber") String mobileNumber, @PathVariable("gender") String gender,
 			@PathVariable("amount") int amount, @PathVariable("password") String password) {
-		// System.out.println("Register entered");
-
 		User user = new User();
 		user.setName(name);
 		user.setAge(age);
@@ -138,14 +134,12 @@ public class Controller {
 			userRepository.changeAmount(totalamount, MobileNumber);
 			Transaction userObj = userRepository.save(transaction);
 			int currentbalance = userObj.getCurrentbalance();
-			// serRepository.transaction(MobileNumber,accountNumber,amount,type,totalamount,time);
 			return "withdraw successfully! Your Current balance = " + currentbalance + "";
 		}
 	}
 
 	@GetMapping("user/deposit/{amount}/{mobilenumber}")
 	public String deposit(@PathVariable("amount") int amount, @PathVariable("mobilenumber") String MobileNumber) {
-		// User userobj =
 		LocalDateTime timestamp = LocalDateTime.now();
 		String time = timestamp.toString();
 		User user = userRepository.findByMobileNumber(MobileNumber);
@@ -168,7 +162,6 @@ public class Controller {
 			userRepository.changeAmount(totalamount, MobileNumber);
 			Transaction userObj = userRepository.save(transaction);
 			int currentbalance = userObj.getCurrentbalance();
-			// serRepository.transaction(MobileNumber,accountNumber,amount,type,totalamount,time);
 			return "Deposit successfully! Your Current balance = " + currentbalance + "";
 		}
 	}

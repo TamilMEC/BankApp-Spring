@@ -19,7 +19,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 	@SuppressWarnings("unchecked")
 	User save(User user);
 
-	// Transaction save(Transaction transaction);
 	User findByMobileNumberAndPasswordAndStatus(String MobileNumber, String Password, String status);
 
 	User findByMobileNumberAndPasswordAndUser(String MobileNumber, String Password, String type);
@@ -42,7 +41,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 	@Modifying
 	@Query("select u from com.bankapp.bankappapi.model.Transaction u where u.mobileNumber=:mobilenumber")
 	List<Transaction> findbymobileNumber(@Param("mobilenumber") String mobilenumber);
-	// Transaction findbymobileNumber(String mobileNumber);
 
 	@Transactional
 	@Modifying
