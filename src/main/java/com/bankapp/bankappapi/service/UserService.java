@@ -187,7 +187,7 @@ public class UserService {
 	}
 
 	public List<Transaction> transactionDetails(String mobileNumber) {
-		List<Transaction> userObj = userRepository.findbymobileNumber(mobileNumber);
+		List<Transaction> userObj = userRepository.findbymobileNo(mobileNumber);
 		return userObj;
 
 	}
