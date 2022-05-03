@@ -116,7 +116,6 @@ public class Controller {
 		String time = timestamp.toString();
 		User user = userRepository.findByMobileNumber(MobileNumber);
 		int userAmount = user.getAmount();
-		System.out.println(userAmount);
 		int accountNumber = user.getAccountNumber();
 		int totalamount = userAmount - amount;
 
@@ -144,7 +143,6 @@ public class Controller {
 		String time = timestamp.toString();
 		User user = userRepository.findByMobileNumber(MobileNumber);
 		int userAmount = user.getAmount();
-		System.out.println(userAmount);
 		int accountNumber = user.getAccountNumber();
 		int totalamount = userAmount + amount;
 
@@ -236,7 +234,6 @@ public class Controller {
 	public List<Transaction> transactionDetails(@PathVariable("mobileNumber") String mobileNumber) {
 
 		List<Transaction> userObj = userRepository.findbymobileNumber(mobileNumber);
-		System.out.println(userObj);
 		return userObj;
 
 	}
