@@ -2,10 +2,8 @@ package com.bankapp.bankappapi.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import com.bankapp.bankappapi.model.Transaction;
 import com.bankapp.bankappapi.model.User;
 import com.bankapp.bankappapi.repository.UserRepository;
@@ -42,7 +40,6 @@ public class UserService {
 		user.setPassword(Password);
 		String status = "Active";
 		String type = "user";
-
 		User userObj = userRepository.findByMobileNumberAndPassword(MobileNumber, Password);
 		User userObj3 = userRepository.findByMobileNumber(MobileNumber);
 		if (userObj3 == null) {
@@ -84,14 +81,12 @@ public class UserService {
 			int userAmount = user.getAmount();
 			int accountNumber = user.getAccountNumber();
 			int totalamount = userAmount - amount;
-
 			transaction.setMobileNumber(MobileNumber);
 			transaction.setUserAccountNumber(accountNumber);
 			transaction.setAmount(amount);
 			transaction.setType("Debited");
 			transaction.setCurrentbalance(totalamount);
 			transaction.setDatetime(time);
-
 			if (amount > userAmount) {
 				return "insufficint account balance";
 			} else {
@@ -110,14 +105,12 @@ public class UserService {
 		int userAmount = user.getAmount();
 		int accountNumber = user.getAccountNumber();
 		int totalamount = userAmount + amount;
-
 		transaction.setMobileNumber(MobileNumber);
 		transaction.setUserAccountNumber(accountNumber);
 		transaction.setAmount(amount);
 		transaction.setType("Credited");
 		transaction.setCurrentbalance(totalamount);
 		transaction.setDatetime(time);
-
 		userRepository.changeAmount(totalamount, MobileNumber);
 		Transaction userObj = userRepository.save(transaction);
 		int currentbalance = userObj.getCurrentbalance();
@@ -136,13 +129,11 @@ public class UserService {
 			int userAmount = user.getAmount();
 			int accountNumber = user.getAccountNumber();
 			int totalamount = userAmount - amount;
-
 			// get receiver amount to update in database
 			User user2 = userRepository.findByAccountNumber(accountnumber);
 			String mobile = user2.getMobileNumber();
 			int receiveramount = user2.getAmount();
 			int totalamounttoreceiver = amount + receiveramount;
-
 			if (amount > userAmount) {
 				return "insufficint account balance";
 			} else {
@@ -150,7 +141,6 @@ public class UserService {
 				userRepository.changeAmount(totalamount, MobileNumber);
 				// update amount in receiver account
 				userRepository.changeAmount(totalamounttoreceiver, mobile);
-
 				// note transacton for sender
 				transaction.setMobileNumber(MobileNumber);
 				transaction.setUserAccountNumber(accountNumber);
@@ -170,7 +160,6 @@ public class UserService {
 	}
 
 	public void reciverTransaction(int accountNumber, int amount2, int accountNumber2, String time) {
-
 		User user = userRepository.findByAccountNumber(accountNumber);
 		String mobileNumber = user.getMobileNumber();
 		int amount = user.getAmount();
@@ -183,13 +172,11 @@ public class UserService {
 		transaction.setCurrentbalance(amount + amount2);
 		transaction.setDatetime(time);
 		userRepository.save(transaction);
-
 	}
 
 	public List<Transaction> transactionDetails(String mobileNumber) {
 		List<Transaction> userObj = userRepository.findbymobileNo(mobileNumber);
 		return userObj;
-
 	}
 
 }

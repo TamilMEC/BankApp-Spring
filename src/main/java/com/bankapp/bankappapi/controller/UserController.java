@@ -1,13 +1,11 @@
 package com.bankapp.bankappapi.controller;
 
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.bankapp.bankappapi.model.Transaction;
 import com.bankapp.bankappapi.model.User;
 import com.bankapp.bankappapi.service.UserService;
@@ -66,7 +64,6 @@ public class UserController {
 
 	@GetMapping("user/transaction/{mobileNumber}")
 	public List<Transaction> transactionDetails(@PathVariable("mobileNumber") String mobileNumber) {
-
 		List<Transaction> userObj2 = userService.transactionDetails(mobileNumber);
 		return userObj2;
 	}
