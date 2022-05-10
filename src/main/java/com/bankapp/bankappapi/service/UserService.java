@@ -42,6 +42,8 @@ public class UserService {
 		String type = "user";
 		User userObj = userRepository.findByMobileNumberAndPassword(MobileNumber, Password);
 		User userObj3 = userRepository.findByMobileNumber(MobileNumber);
+		System.out.println(MobileNumber);
+		System.out.println(Password);
 		if (userObj3 == null) {
 			return "No user found.If you are new user register then login";
 		} else {
