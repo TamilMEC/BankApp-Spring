@@ -24,10 +24,7 @@ public class AdminController {
 	@PostMapping("admin/login")
 	public  ResponseEntity adminLogin(@RequestBody User user) {
 	try{
-			
-		String message1 = adminService.adminLogin( user.getMobileNumber(), user.getPassword());
-		System.out.println(message1);
-			Message message = new Message("Success");
+			Message message = new Message(adminService.adminLogin( user.getMobileNumber(), user.getPassword()));
 			return new ResponseEntity<>(message, HttpStatus.OK);
 		}catch(Exception e) {
 			Message message = new Message(e.getMessage());
@@ -48,25 +45,36 @@ public class AdminController {
 	
 	@GetMapping("admin/listinactiveusers")
 	public List<User> getAllInactiveUsers() {
-		System.out.println("running");
 		List<User> userList = adminService.getAllInactiveUsers();
 		System.out.println(userList);
-		System.out.println("success");
 		return userList;
 	}
 
 	@PostMapping("admin/activateuser")
-	public String activateUser(@RequestBody User user) {
+	public  Message activateUser(@RequestBody User user) {
 		System.out.println(user);
+		System.out.println("running");
 		String message = adminService.activateUsers(user.getMobileNumber());
 		System.out.println(message);
-		return message;
+		Message message1 = new Message(message);
+		System.out.println("success");
+		return message1;
+	}
+	
+	@PostMapping("admin/inactivateuser")
+	public  Message inactivateUser(@RequestBody User user) {
+		String message = adminService.inactivateUsers(user.getMobileNumber());
+		System.out.println(message);
+		Message message1 = new Message(message);
+		return message1;
 	}
 
-	@DeleteMapping("account/delete")
-	public String deleteUserAccount(@RequestBody User user) {
+
+	@PostMapping("account/delete")
+	public Message deleteUserAccount(@RequestBody User user) {
 		String message = adminService.deleteUserAccount(user.getMobileNumber());
-		return message;
+		Message message1 = new Message(message);
+		return message1;
 	}
 
 }

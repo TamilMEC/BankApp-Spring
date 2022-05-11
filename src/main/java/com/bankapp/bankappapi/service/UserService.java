@@ -38,7 +38,7 @@ public class UserService {
 		return userObj;
 	}
 
-	public String login(String MobileNumber, String Password) {
+	public String login(String MobileNumber, String Password) throws Exception{
 		user.setMobileNumber(MobileNumber);
 		user.setPassword(Password);
 		String status = "Active";
@@ -48,19 +48,19 @@ public class UserService {
 		System.out.println(MobileNumber);
 		System.out.println(Password);
 		if (userObj3 == null) {
-			return "No user found.If you are new user register then login";
+			throw new Exception ("No user found.If you are new user register then login");
 		} else {
 			User userObj4 = userRepository.findByMobileNumberAndPasswordAndRole(MobileNumber, Password, type);
 			if (userObj4 == null) {
-				return "You are not an user.If you are admin try to login in admin login";
+				throw new Exception ("You are not an user.If you are admin try to login in admin login");
 			} else {
 				if (userObj == null) {
-					return "Please enter valid Mobile number or password";
+					throw new Exception("Please enter valid Mobile number or password");
 				} else {
 					User userObj2 = userRepository.findByMobileNumberAndPasswordAndStatus(MobileNumber, Password,
 							status);
 					if (userObj2 == null) {
-						return "Your Account is not activated kindly wait for 2 working days to activate your account";
+						throw new Exception ("Your Account is not activated kindly wait for 2 working days to activate your account");
 					} else {
 						return "success";
 					}
@@ -73,6 +73,7 @@ public class UserService {
 		user.setMobileNumber(MobileNumber);
 		user.setPassword(Password);
 		User userObj = userRepository.findByMobileNumberAndPassword(MobileNumber, Password);
+		System.out.println(userObj);
 		return userObj;
 	}
 

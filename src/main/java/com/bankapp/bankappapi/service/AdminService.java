@@ -17,24 +17,23 @@ public class AdminService {
 	@Autowired
 	User user;
 
-	public String adminLogin(String MobileNumber, String Password) {
+	public String adminLogin(String MobileNumber, String Password) throws Exception {
 		user.setMobileNumber(MobileNumber);
 		user.setPassword(Password);
 		String type = "Admin";
 		User userObj3 = userRepository.findByMobileNumber(MobileNumber);
-		if (userObj3 == null) {
-			return "No Admin account found";
-		}
 		User userObj = userRepository.findByMobileNumberAndPassword(MobileNumber, Password);
-		if (userObj == null) {
-			return "Invalid Mobile Numer or Passsword";
-		} else {
-			User userObj2 = userRepository.findByMobileNumberAndPasswordAndRole(MobileNumber, Password, type);
-			if (userObj2 == null) {
-				return "You are not a admin.If you are user try to login in user Login";
-			}
-			return "success";
+		User userObj2 = userRepository.findByMobileNumberAndPasswordAndRole(MobileNumber, Password, type);
+		if (userObj3 == null) {
+			throw new Exception("No Admin account found");
+		} else if (userObj == null) {
+			throw new Exception("Invalid Mobile Numer or Passsword");
+		} else if (userObj2 == null) {
+			throw new Exception("You are not a admin.If you are user try to login in user Login");
+		}else {
+		return "success";
 		}
+
 	}
 
 	public List<User> getAllUsers() {
@@ -48,7 +47,7 @@ public class AdminService {
 		List<User> userList = adminrepository.findByStatus(status);
 		return userList;
 	}
-	
+
 	public String activateUsers(String mobileNumber) {
 		String status = "Active";
 		int row = adminrepository.changeStatus(mobileNumber, status);
@@ -65,6 +64,16 @@ public class AdminService {
 			return "User Account successfully deleted";
 		} else {
 			return "Unable to delete user account";
+		}
+	}
+
+	public String inactivateUsers(String mobileNumber) {
+		String status = "inactive";
+		int row = adminrepository.changeStatus(mobileNumber, status);
+		if (row == 1) {
+			return "Successfully Activated User Account";
+		} else {
+			return "No user found";
 		}
 	}
 }

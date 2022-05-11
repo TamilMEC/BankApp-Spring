@@ -18,38 +18,34 @@ import com.bankapp.bankappapi.service.UserService;
 @Component
 @RestController
 public class UserController {
-	//private static final Logger LOGGER=LoggerFactory.getLogger(UserController.class);
+	// private static final Logger
+	// LOGGER=LoggerFactory.getLogger(UserController.class);
 	@Autowired
 	UserService userService;
 
-
 	@PostMapping("user/register")
 	public User registerdetails(@RequestBody User user) {
-		User userDetails = userService.register(user.getName(),user.getAge(),user.getMobileNumber(),user.getGender(),user.getAmount(),user.getPassword());
-	System.out.println(userDetails);
+		User userDetails = userService.register(user.getName(), user.getAge(), user.getMobileNumber(), user.getGender(),
+				user.getAmount(), user.getPassword());
+		System.out.println(userDetails);
 		return userDetails;
 	}
 
 	@PostMapping("user/login")
-	public ResponseEntity login(@RequestBody User user) {
-		String message1;
-		
-		try{
-			
-			message1 = userService.login(user.getMobileNumber(), user.getPassword());
-			System.out.println(message1);
-			System.out.println();
-			Message message = new Message("Success");
+	public ResponseEntity<?> login(@RequestBody User user) {
+		try {
+			Message message = new Message(userService.login(user.getMobileNumber(), user.getPassword()));
 			return new ResponseEntity<>(message, HttpStatus.OK);
-		}catch(Exception e) {
+		} catch (Exception e) {
 			Message message = new Message(e.getMessage());
 			return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
 		}
 	}
 
 	@PostMapping("user/accountdetails")
-	public   User accountDetails(@RequestBody User user) {
-		System.out.println(user);
+	public User accountDetails(@RequestBody User user) {
+		System.out.println(user.getMobileNumber());
+		System.out.println(user.getPassword());
 		User obj = userService.accountDetails(user.getMobileNumber(), user.getPassword());
 		System.out.println(obj);
 		return obj;
@@ -57,7 +53,7 @@ public class UserController {
 
 	@PostMapping("user/withdraw")
 	public Message withdraw(@RequestBody User user) {
-		String message2 = userService.withdraw(user.getAmount(),user.getMobileNumber());
+		String message2 = userService.withdraw(user.getAmount(), user.getMobileNumber());
 		System.out.println(user.getAmount());
 		System.out.println(user.getMobileNumber());
 		System.out.println(message2);
@@ -65,17 +61,16 @@ public class UserController {
 		return message;
 	}
 
-	
 	@PostMapping("user/deposit")
 	public Message deposit(@RequestBody User user) {
-		String message3 = userService.deposit(user.getAmount(),user.getMobileNumber());
+		String message3 = userService.deposit(user.getAmount(), user.getMobileNumber());
 		Message message = new Message(message3);
 		return message;
 	}
 
 	@PostMapping("user/amounttransfer")
 	public Message amountTransfer(@RequestBody User user) {
-		String message4 = userService.amountTransfer(user.getAccountNumber(),user.getAmount(),user.getMobileNumber());
+		String message4 = userService.amountTransfer(user.getAccountNumber(), user.getAmount(), user.getMobileNumber());
 		Message message = new Message(message4);
 		return message;
 
