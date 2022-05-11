@@ -52,27 +52,36 @@ public class UserController {
 	}
 
 	@PostMapping("user/withdraw")
-	public Message withdraw(@RequestBody User user) {
-		String message2 = userService.withdraw(user.getAmount(), user.getMobileNumber());
-		System.out.println(user.getAmount());
-		System.out.println(user.getMobileNumber());
-		System.out.println(message2);
-		Message message = new Message(message2);
-		return message;
+	public ResponseEntity withdraw(@RequestBody User user) {
+		try {
+			Message message = new Message(userService.withdraw(user.getAmount(), user.getMobileNumber()));
+			return new ResponseEntity<>(message, HttpStatus.OK);
+		} catch (Exception e) {
+			Message message = new Message(e.getMessage());
+			return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+		}
 	}
 
 	@PostMapping("user/deposit")
-	public Message deposit(@RequestBody User user) {
-		String message3 = userService.deposit(user.getAmount(), user.getMobileNumber());
-		Message message = new Message(message3);
-		return message;
-	}
+	public  ResponseEntity deposit(@RequestBody User user) {
+		try {
+			Message message = new Message(userService.deposit(user.getAmount(), user.getMobileNumber()));
+			return new ResponseEntity<>(message, HttpStatus.OK);
+		} catch (Exception e) {
+			Message message = new Message(e.getMessage());
+			return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+		}
+		}
 
 	@PostMapping("user/amounttransfer")
-	public Message amountTransfer(@RequestBody User user) {
-		String message4 = userService.amountTransfer(user.getAccountNumber(), user.getAmount(), user.getMobileNumber());
-		Message message = new Message(message4);
-		return message;
+	public  ResponseEntity amountTransfer(@RequestBody User user) {	
+		try {
+			Message message = new Message( userService.amountTransfer(user.getAccountNumber(), user.getAmount(), user.getMobileNumber()));
+			return new ResponseEntity<>(message, HttpStatus.OK);
+		} catch (Exception e) {
+			Message message = new Message(e.getMessage());
+			return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+		}
 
 	}
 

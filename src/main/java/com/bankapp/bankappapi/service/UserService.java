@@ -77,12 +77,12 @@ public class UserService {
 		return userObj;
 	}
 
-	public String withdraw(int amount, String MobileNumber) {
+	public String withdraw(int amount, String MobileNumber) throws Exception {
 		LocalDateTime timestamp = LocalDateTime.now();
 		String time = timestamp.toString();
 		User user = userRepository.findByMobileNumber(MobileNumber);
 		if (user == null) {
-			return "no user account found";
+			throw new Exception ("no user account found in this account number");
 		} else {
 			int userAmount = user.getAmount();
 			int accountNumber = user.getAccountNumber();
@@ -97,7 +97,7 @@ public class UserService {
 			transaction.setCurrentbalance(totalamount);
 			transaction.setDatetime(time);
 			if (amount > userAmount) {
-				return "insufficint account balance";
+				throw new Exception ("insufficint account balance");
 			} else {
 				userRepository.changeAmount(totalamount, MobileNumber);
 				Transaction userObj = transactionrepository.save(transaction);
@@ -127,12 +127,12 @@ public class UserService {
 		return "Deposit successfully! Your Current balance = " + currentbalance + "";
 	}
 
-	public String amountTransfer(int accountnumber, int amount, String MobileNumber) {
+	public String amountTransfer(int accountnumber, int amount, String MobileNumber) throws Exception {
 		LocalDateTime timestamp = LocalDateTime.now();
 		String time = timestamp.toString();
 		User row = userRepository.findByAccountNumber(accountnumber);
 		if (row == null) {
-			return "no user found in this account number";
+			throw new Exception ("no user found in this account number");
 		} else {
 			// Object to get sender amount to update in sender account
 			User user = userRepository.findByMobileNumber(MobileNumber);
@@ -145,7 +145,7 @@ public class UserService {
 			int receiveramount = user2.getAmount();
 			int totalamounttoreceiver = amount + receiveramount;
 			if (amount > userAmount) {
-				return "insufficint account balance";
+				throw new Exception ("insufficint account balance");
 			} else {
 				// update amount in sender account
 				userRepository.changeAmount(totalamount, MobileNumber);
