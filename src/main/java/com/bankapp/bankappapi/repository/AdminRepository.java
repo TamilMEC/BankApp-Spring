@@ -15,8 +15,10 @@ import com.bankapp.bankappapi.model.User;
 @Repository
 public interface AdminRepository extends JpaRepository<User, Integer> {
 
-	List<User> findByuser(String user);
+	List<User> findByRole(String role);
 
+	List<User> findByStatus(String status);
+	
 	@Transactional
 	@Modifying
 	@Query("update com.bankapp.bankappapi.model.User u set u.status=:status where u.mobileNumber=:mobileNumber")

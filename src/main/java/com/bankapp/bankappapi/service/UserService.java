@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.bankapp.bankappapi.model.Transaction;
 import com.bankapp.bankappapi.model.User;
+import com.bankapp.bankappapi.repository.TransactionRepository;
 import com.bankapp.bankappapi.repository.UserRepository;
 
 @Component
@@ -13,12 +14,15 @@ public class UserService {
 
 	@Autowired
 	UserRepository userRepository;
+	
+	@Autowired
+	TransactionRepository transactionrepository;
 
 	@Autowired
 	User user;
 
-	@Autowired
-	Transaction transaction;
+//	@Autowired
+//	Transaction transaction;
 
 	public User register(String name, int age, String mobileNumber, String gender, int amount, String password) {
 		User user = new User();
@@ -29,10 +33,9 @@ public class UserService {
 		user.setAmount(amount);
 		user.setPassword(password);
 		user.setStatus("inactive");
-		user.setUser("user");
+		user.setRole("user");
 		User userObj = userRepository.save(user);
 		return userObj;
-
 	}
 
 	public String login(String MobileNumber, String Password) {
@@ -47,7 +50,7 @@ public class UserService {
 		if (userObj3 == null) {
 			return "No user found.If you are new user register then login";
 		} else {
-			User userObj4 = userRepository.findByMobileNumberAndPasswordAndUser(MobileNumber, Password, type);
+			User userObj4 = userRepository.findByMobileNumberAndPasswordAndRole(MobileNumber, Password, type);
 			if (userObj4 == null) {
 				return "You are not an user.If you are admin try to login in admin login";
 			} else {
@@ -83,6 +86,9 @@ public class UserService {
 			int userAmount = user.getAmount();
 			int accountNumber = user.getAccountNumber();
 			int totalamount = userAmount - amount;
+			
+			Transaction transaction = new Transaction();
+			
 			transaction.setMobileNumber(MobileNumber);
 			transaction.setUserAccountNumber(accountNumber);
 			transaction.setAmount(amount);
@@ -93,7 +99,7 @@ public class UserService {
 				return "insufficint account balance";
 			} else {
 				userRepository.changeAmount(totalamount, MobileNumber);
-				Transaction userObj = userRepository.save(transaction);
+				Transaction userObj = transactionrepository.save(transaction);
 				int currentbalance = userObj.getCurrentbalance();
 				return "withdraw successfully! Your Current balance = " + currentbalance + "";
 			}
@@ -107,6 +113,7 @@ public class UserService {
 		int userAmount = user.getAmount();
 		int accountNumber = user.getAccountNumber();
 		int totalamount = userAmount + amount;
+		Transaction transaction = new Transaction();
 		transaction.setMobileNumber(MobileNumber);
 		transaction.setUserAccountNumber(accountNumber);
 		transaction.setAmount(amount);
@@ -114,7 +121,7 @@ public class UserService {
 		transaction.setCurrentbalance(totalamount);
 		transaction.setDatetime(time);
 		userRepository.changeAmount(totalamount, MobileNumber);
-		Transaction userObj = userRepository.save(transaction);
+		Transaction userObj = transactionrepository.save(transaction);
 		int currentbalance = userObj.getCurrentbalance();
 		return "Deposit successfully! Your Current balance = " + currentbalance + "";
 	}
@@ -144,6 +151,7 @@ public class UserService {
 				// update amount in receiver account
 				userRepository.changeAmount(totalamounttoreceiver, mobile);
 				// note transacton for sender
+				Transaction transaction = new Transaction();
 				transaction.setMobileNumber(MobileNumber);
 				transaction.setUserAccountNumber(accountNumber);
 				transaction.setAmount(amount);
@@ -151,7 +159,7 @@ public class UserService {
 				transaction.setCurrentbalance(totalamount);
 				transaction.setDatetime(time);
 				transaction.setAccountNumber(accountnumber);
-				Transaction userObj = userRepository.save(transaction);
+				Transaction userObj = transactionrepository.save(transaction);
 				// note transacton for receiver
 				reciverTransaction(accountnumber, amount, accountNumber, time);
 				int currentbalance = userObj.getCurrentbalance();
@@ -166,6 +174,7 @@ public class UserService {
 		String mobileNumber = user.getMobileNumber();
 		int amount = user.getAmount();
 		// note transaction for receiver
+		Transaction transaction = new Transaction();
 		transaction.setMobileNumber(mobileNumber);
 		transaction.setUserAccountNumber(accountNumber);
 		transaction.setAmount(amount2);
@@ -173,11 +182,11 @@ public class UserService {
 		transaction.setAccountNumber(accountNumber2);
 		transaction.setCurrentbalance(amount + amount2);
 		transaction.setDatetime(time);
-		userRepository.save(transaction);
+		transactionrepository.save(transaction);
 	}
 
 	public List<Transaction> transactionDetails(String mobileNumber) {
-		List<Transaction> userObj = userRepository.findbymobileNo(mobileNumber);
+		List<Transaction> userObj = userRepository.findUsingmobileNo(mobileNumber);
 		return userObj;
 	}
 

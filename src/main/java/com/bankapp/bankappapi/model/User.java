@@ -2,6 +2,8 @@ package com.bankapp.bankappapi.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import org.springframework.stereotype.Component;
 import lombok.AllArgsConstructor;
@@ -18,6 +20,7 @@ import lombok.ToString;
 public class User {
 	
 	@Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "account_number")
 	private int accountNumber;
 
@@ -39,8 +42,8 @@ public class User {
 	@Column(name = "password")
 	private String password;
 
-	@Column(name = "user")
-	private String user;
+	@Column(name = "role")
+	private String role;
 
 	@Column(name = "status")
 	private String status;

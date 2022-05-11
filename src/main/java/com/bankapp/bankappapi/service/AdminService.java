@@ -29,7 +29,7 @@ public class AdminService {
 		if (userObj == null) {
 			return "Invalid Mobile Numer or Passsword";
 		} else {
-			User userObj2 = userRepository.findByMobileNumberAndPasswordAndUser(MobileNumber, Password, type);
+			User userObj2 = userRepository.findByMobileNumberAndPasswordAndRole(MobileNumber, Password, type);
 			if (userObj2 == null) {
 				return "You are not a admin.If you are user try to login in user Login";
 			}
@@ -39,10 +39,16 @@ public class AdminService {
 
 	public List<User> getAllUsers() {
 		String type = "user";
-		List<User> userList = adminrepository.findByuser(type);
+		List<User> userList = adminrepository.findByRole(type);
 		return userList;
 	}
 
+	public List<User> getAllInactiveUsers() {
+		String status = "inactive";
+		List<User> userList = adminrepository.findByStatus(status);
+		return userList;
+	}
+	
 	public String activateUsers(String mobileNumber) {
 		String status = "Active";
 		int row = adminrepository.changeStatus(mobileNumber, status);

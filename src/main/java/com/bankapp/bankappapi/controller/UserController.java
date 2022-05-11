@@ -2,17 +2,12 @@ package com.bankapp.bankappapi.controller;
 
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bankapp.bankappapi.Dto.Message;
@@ -20,23 +15,18 @@ import com.bankapp.bankappapi.model.Transaction;
 import com.bankapp.bankappapi.model.User;
 import com.bankapp.bankappapi.service.UserService;
 
-
+@Component
 @RestController
 public class UserController {
 	//private static final Logger LOGGER=LoggerFactory.getLogger(UserController.class);
 	@Autowired
 	UserService userService;
 
-//	@GetMapping("user/register/{name}/{age}/{mobileNumber}/{gender}/{amount}/{password}")
-//	public User registerdetails(@PathVariable("name") String name, @PathVariable("age") int age,
-//			@PathVariable("mobileNumber") String mobileNumber, @PathVariable("gender") String gender,
-//			@PathVariable("amount") int amount, @PathVariable("password") String password) {
-//		User userDetails = userService.register(name, age, mobileNumber, gender, amount, password);
-//		return userDetails;
-//	}
+
 	@PostMapping("user/register")
 	public User registerdetails(@RequestBody User user) {
 		User userDetails = userService.register(user.getName(),user.getAge(),user.getMobileNumber(),user.getGender(),user.getAmount(),user.getPassword());
+	System.out.println(userDetails);
 		return userDetails;
 	}
 
@@ -57,36 +47,44 @@ public class UserController {
 		}
 	}
 
-	@GetMapping("user/accountdetails/{mobile_number}/{Password}")
-	public User accountDetails(@PathVariable("mobile_number") String MobileNumber,
-			@PathVariable("Password") String Password) {
-		User obj = userService.accountDetails(MobileNumber, Password);
+	@PostMapping("user/accountdetails")
+	public   User accountDetails(@RequestBody User user) {
+		System.out.println(user);
+		User obj = userService.accountDetails(user.getMobileNumber(), user.getPassword());
+		System.out.println(obj);
 		return obj;
 	}
 
-	@GetMapping("user/withdraw/{amount}/{mobilenumber}")
-	public String withdraw(@PathVariable("amount") int amount, @PathVariable("mobilenumber") String MobileNumber) {
-		String message2 = userService.withdraw(amount, MobileNumber);
-		return message2;
+	@PostMapping("user/withdraw")
+	public Message withdraw(@RequestBody User user) {
+		String message2 = userService.withdraw(user.getAmount(),user.getMobileNumber());
+		System.out.println(user.getAmount());
+		System.out.println(user.getMobileNumber());
+		System.out.println(message2);
+		Message message = new Message(message2);
+		return message;
 	}
 
-	@GetMapping("user/deposit/{amount}/{mobilenumber}")
-	public String deposit(@PathVariable("amount") int amount, @PathVariable("mobilenumber") String MobileNumber) {
-		String message3 = userService.deposit(amount, MobileNumber);
-		return message3;
+	
+	@PostMapping("user/deposit")
+	public Message deposit(@RequestBody User user) {
+		String message3 = userService.deposit(user.getAmount(),user.getMobileNumber());
+		Message message = new Message(message3);
+		return message;
 	}
 
-	@GetMapping("user/amounttransfer/{accountnumber}/{amount}/{mobilenumber}")
-	public String amountTransfer(@PathVariable("accountnumber") int accountnumber, @PathVariable("amount") int amount,
-			@PathVariable("mobilenumber") String MobileNumber) {
-		String message4 = userService.amountTransfer(accountnumber, amount, MobileNumber);
-		return message4;
+	@PostMapping("user/amounttransfer")
+	public Message amountTransfer(@RequestBody User user) {
+		String message4 = userService.amountTransfer(user.getAccountNumber(),user.getAmount(),user.getMobileNumber());
+		Message message = new Message(message4);
+		return message;
 
 	}
 
-	@GetMapping("user/transaction/{mobileNumber}")
-	public List<Transaction> transactionDetails(@PathVariable("mobileNumber") String mobileNumber) {
-		List<Transaction> userObj2 = userService.transactionDetails(mobileNumber);
+	@PostMapping("user/transaction")
+	public List<Transaction> transactionDetails(@RequestBody User user) {
+		System.out.println(user);
+		List<Transaction> userObj2 = userService.transactionDetails(user.getMobileNumber());
 		return userObj2;
 	}
 

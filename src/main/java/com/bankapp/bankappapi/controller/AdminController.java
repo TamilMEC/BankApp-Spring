@@ -23,8 +23,6 @@ public class AdminController {
 
 	@PostMapping("admin/login")
 	public  ResponseEntity adminLogin(@RequestBody User user) {
-		
-		
 	try{
 			
 		String message1 = adminService.adminLogin( user.getMobileNumber(), user.getPassword());
@@ -40,19 +38,34 @@ public class AdminController {
 
 	@GetMapping("admin/listusers")
 	public List<User> getAllUsers() {
+		System.out.println("running");
 		List<User> userList = adminService.getAllUsers();
+		
+		System.out.println(userList);
+		System.out.println("success");
+		return userList;
+	}
+	
+	@GetMapping("admin/listinactiveusers")
+	public List<User> getAllInactiveUsers() {
+		System.out.println("running");
+		List<User> userList = adminService.getAllInactiveUsers();
+		System.out.println(userList);
+		System.out.println("success");
 		return userList;
 	}
 
-	@GetMapping("admin/activateuser/{mobileNumber}")
-	public String activateUser(@PathVariable("mobileNumber") String mobileNumber) {
-		String message = adminService.activateUsers(mobileNumber);
+	@PostMapping("admin/activateuser")
+	public String activateUser(@RequestBody User user) {
+		System.out.println(user);
+		String message = adminService.activateUsers(user.getMobileNumber());
+		System.out.println(message);
 		return message;
 	}
 
-	@DeleteMapping("account/delete/{moileNumber}")
-	public String deleteUserAccount(@PathVariable("moileNumber") String mobileNumber) {
-		String message = adminService.deleteUserAccount(mobileNumber);
+	@DeleteMapping("account/delete")
+	public String deleteUserAccount(@RequestBody User user) {
+		String message = adminService.deleteUserAccount(user.getMobileNumber());
 		return message;
 	}
 
